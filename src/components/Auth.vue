@@ -96,75 +96,94 @@
             </button>
           </form>
           <!-- Registration Form -->
-          <form v-show="tab === 'register'">
+          <VeeForm v-show="tab === 'register'" :validation-schema="schema" @submit="register">
             <!-- Name -->
             <div class="mb-3">
               <label class="inline-block mb-2">Name</label>
-              <input
+              <VeeField
                 type="text"
                 class="block w-full py-1.5 px-3 text-gray-800 border border-gray-300 transition
                   duration-500 focus:outline-none focus:border-black rounded"
                 placeholder="Enter Name"
+                name="name"
               />
+              <ErrorMessage class="text-red-600" name="name" />
             </div>
             <!-- Email -->
             <div class="mb-3">
               <label class="inline-block mb-2">Email</label>
-              <input
+              <VeeField
                 type="email"
                 class="block w-full py-1.5 px-3 text-gray-800 border border-gray-300 transition
                   duration-500 focus:outline-none focus:border-black rounded"
                 placeholder="Enter Email"
+                name="email"
               />
+              <ErrorMessage class="text-red-600" name="email" />
             </div>
             <!-- Age -->
             <div class="mb-3">
               <label class="inline-block mb-2">Age</label>
-              <input
+              <VeeField
                 type="number"
                 class="block w-full py-1.5 px-3 text-gray-800 border border-gray-300 transition
                   duration-500 focus:outline-none focus:border-black rounded"
+                name="age"
               />
+              <ErrorMessage class="text-red-600" name="age" />
             </div>
             <!-- Password -->
             <div class="mb-3">
               <label class="inline-block mb-2">Password</label>
-              <input
+              <VeeField
                 type="password"
                 class="block w-full py-1.5 px-3 text-gray-800 border border-gray-300 transition
                   duration-500 focus:outline-none focus:border-black rounded"
                 placeholder="Password"
+                name="password"
               />
+              <ErrorMessage class="text-red-600" name="password" />
             </div>
             <!-- Confirm Password -->
             <div class="mb-3">
               <label class="inline-block mb-2">Confirm Password</label>
-              <input
+              <VeeField
                 type="password"
                 class="block w-full py-1.5 px-3 text-gray-800 border border-gray-300 transition
                   duration-500 focus:outline-none focus:border-black rounded"
                 placeholder="Confirm Password"
+                name="confirm_password"
               />
+              <ErrorMessage class="text-red-600" name="confirm_password" />
             </div>
             <!-- Country -->
             <div class="mb-3">
               <label class="inline-block mb-2">Country</label>
-              <select
+              <VeeField
+                as="select"
+                name="country"
                 class="block w-full py-1.5 px-3 text-gray-800 border border-gray-300 transition
                   duration-500 focus:outline-none focus:border-black rounded"
+                placeholder="Choose one"
               >
+                <option value="none">Does not exist</option>
                 <option value="USA">USA</option>
                 <option value="Mexico">Mexico</option>
                 <option value="Germany">Germany</option>
-              </select>
+                <option value="Poland">Poland</option>
+              </VeeField>
+              <ErrorMessage class="text-red-600" name="country" />
             </div>
             <!-- TOS -->
             <div class="mb-3 pl-6">
-              <input
+              <VeeField
+                name="tos"
                 type="checkbox"
+                value="1"
                 class="w-4 h-4 float-left -ml-6 mt-1 rounded"
               />
-              <label class="inline-block">Accept terms of service</label>
+              <label class="inline-block">Accept terms of service&nbsp;</label>
+              <ErrorMessage class="text-red-600" name="tos" />
             </div>
             <button
               type="submit"
@@ -173,7 +192,7 @@
             >
               Submit
             </button>
-          </form>
+          </VeeForm>
         </div>
       </div>
     </div>
@@ -187,14 +206,26 @@ export default {
   name: 'AppAuth',
   data () {
     return {
-      tab: 'login'
+      tab: 'login',
+      schema: {
+        name: 'required|min:2|max:100|alpha',
+        email: 'required|email|min:7|max:100',
+        age: 'required|integer|min_value:18|max_value:130',
+        password: 'required|min:3|max:100',
+        confirm_password: 'required|confirmed:@password',
+        country: 'required|excluded:none',
+        tos: 'required'
+      }
     }
   },
   computed: {
     ...mapState(['authModalShow'])
   },
   methods: {
-    ...mapMutations(['toggleAuthModal'])
+    ...mapMutations(['toggleAuthModal']),
+    register (values) {
+      console.log(values)
+    }
   }
 }
 </script>
