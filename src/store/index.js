@@ -42,10 +42,14 @@ export default createStore({
 
       commit('toggleAuth')
     },
-    async signout ({ commit }) {
+    async signout ({ commit } /*, { router, route } */) {
       await auth.signOut()
 
       commit('toggleAuth')
+
+      // if (route.meta.requiresAuth) {
+      //   router.push({ name: 'home' })
+      // }
     },
     init_login ({ commit }) {
       const user = auth.currentUser
