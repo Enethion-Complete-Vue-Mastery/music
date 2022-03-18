@@ -307,6 +307,9 @@ export default {
   components: {
     AppHeader,
     AppAuth
+  },
+  created () {
+    this.$store.dispatch('init_login')
   }
 }
 </script>
