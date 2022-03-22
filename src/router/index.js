@@ -1,9 +1,10 @@
+import { createRouter, createWebHistory } from 'vue-router'
+import store from '@/store'
+
 import HomeView from '@/views/HomeView'
 import ManageView from '@/views/ManageView'
 import AboutView from '@/views/AboutView'
-
-import { createRouter, createWebHistory } from 'vue-router'
-import store from '@/store'
+import SongView from '@/views/SongView.vue'
 
 const routes = [
   {
@@ -15,6 +16,11 @@ const routes = [
     name: 'about',
     path: '/about',
     component: AboutView
+  },
+  {
+    name: 'song',
+    path: '/song/:id',
+    component: SongView
   },
   {
     name: 'manage',

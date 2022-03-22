@@ -26,7 +26,7 @@
       <VeeForm
         :validation-schema="schema"
         @submit="saveSong"
-        :initial-values="song"
+        :initial-values="songItem"
       >
         <div class="mb-3">
           <label class="inline-block mb-2">Song Title</label>
@@ -94,7 +94,8 @@ export default {
       type: Function
     },
     setUnsavedFlag: {
-      type: Function
+      type: Function,
+      required: true
     }
   },
   data () {
@@ -103,6 +104,10 @@ export default {
       schema: {
         modified_name: 'required|min:2|max:100',
         genre: 'min:2|max:100'
+      },
+      songItem: {
+        modified_name: this.song.modified_name,
+        genre: this.song.genre
       },
       in_submission: false,
       show_alert: false,
