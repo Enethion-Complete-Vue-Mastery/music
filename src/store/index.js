@@ -1,7 +1,11 @@
 import { createStore } from 'vuex'
 import { auth, usersCollection } from '@/includes/firebase'
+import player from './player'
 
 export default createStore({
+  modules: {
+    player
+  },
   state: {
     authModalShow: false,
     userLoggedIn: false

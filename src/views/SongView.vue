@@ -9,6 +9,7 @@
       <!-- Play/Pause Button -->
       <button
         type="button"
+        @click.prevent="newSong(song)"
         class="z-50 h-24 w-24 text-3xl bg-white text-black rounded-full
         focus:outline-none"
       >
@@ -29,7 +30,7 @@
         <span class="card-title">Comments ({{ song.comment_count }})</span>
         <i class="fa fa-comments float-right text-green-400 text-2xl"></i>
       </div>
-      <div class="p-6">
+      <div class="p-6" v-if="userLoggedIn">
         <VeeForm :validation-schema="schema" @submit="submit">
           <VeeField
             as="textarea"
@@ -54,7 +55,7 @@
           v-model="sort"
         >
           <option value="latest">Latest</option>
-          <option value="oldes">Oldest</option>
+          <option value="oldest">Oldest</option>
         </select>
       </div>
     </div>
@@ -68,7 +69,7 @@
     >
       <!-- Comment Author -->
       <div class="mb-5">
-        <div class="font-bold" v-text="comment.uid" />
+        <div class="font-bold" v-text="comment.author" />
         <time v-text="comment.created_at" />
       </div>
 
@@ -78,7 +79,14 @@
 </template>
 
 <script>
-import { songsCollection, commentsCollection, auth } from '@/includes/firebase'
+import {
+  songsCollection,
+  commentsCollection,
+  usersCollection,
+  auth
+} from '@/includes/firebase'
+import { mapState, mapActions } from 'vuex'
+
 export default {
   name: 'SongView',
   data () {
@@ -90,6 +98,7 @@ export default {
       commentInSubmission: false,
       pendingRequest: false,
       comments: [],
+      cAuthors: [],
       sort: 'latest'
     }
   },
@@ -100,6 +109,10 @@ export default {
       this.$router.push({ name: 'home' })
     }
 
+    const { sort } = this.$route.query
+
+    this.sort = (sort + '').match('latest|oldest') ? sort : 'latest'
+
     this.song = docSnapshot.data()
     this.loadComments()
   },
@@ -108,7 +121,8 @@ export default {
       return this.sort === 'latest'
         ? [...this.comments].reverse()
         : this.comments
-    }
+    },
+    ...mapState(['userLoggedIn'])
   },
   methods: {
     async submit (values, { resetForm }) {
@@ -127,9 +141,10 @@ export default {
 
       try {
         await commentsCollection.add(userComment)
+        this.song.comment_count += 1
         await songsCollection
           .doc(this.$route.params.id)
-          .update({ comment_count: ++this.song.comment_count })
+          .update({ comment_count: this.song.comment_count })
       } catch (error) {
         this.commentInSubmission = false
         return
@@ -150,7 +165,6 @@ export default {
 
       let snapshots
       if (this.comments.length) {
-        console.log(this.comments.length)
         const lastDoc = await commentsCollection
           .doc(this.comments[this.comments.length - 1].docID)
           .get()
@@ -162,14 +176,34 @@ export default {
         snapshots = await commentsCollection.orderBy('created_at').get()
       }
 
-      snapshots.forEach(document => {
+      snapshots.forEach(async document => {
+        const author =
+          this.cAuthors[document.data().uid] ||
+          await this.getAuthor(document.data().uid)
         this.comments.push({
           docID: document.id,
+          author,
           ...document.data()
         })
       })
 
       this.pendingRequest = false
+    },
+    async getAuthor (uid) {
+      const author = (await usersCollection.doc(uid).get()).data().name
+
+      this.cAuthors[uid] = author
+      return author
+    },
+    ...mapActions('player', ['newSong'])
+  },
+  watch: {
+    sort (newVal) {
+      this.$router.push({
+        query: {
+          sort: newVal
+        }
+      })
     }
   }
 }
