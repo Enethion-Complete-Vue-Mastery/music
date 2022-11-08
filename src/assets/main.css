@@ -17,6 +17,10 @@ a:hover {
   width: calc(100% - 250px);
 }
 
+.player-scrub .fas.fa-circle {
+  margin-left: -50%;
+}
+
 .top-neg-8 {
   top: -8px;
 } 

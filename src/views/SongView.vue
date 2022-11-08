@@ -9,11 +9,14 @@
       <!-- Play/Pause Button -->
       <button
         type="button"
-        @click.prevent="newSong(song)"
+        @click.prevent="bigPlayButton"
         class="z-50 h-24 w-24 text-3xl bg-white text-black rounded-full
         focus:outline-none"
       >
-        <i class="fas fa-play"></i>
+        <i class="fas" :class="{
+          'fa-play': !(isCurrent && playing),
+          'fa-pause': isCurrent && playing
+        }"></i>
       </button>
       <div class="z-50 text-left ml-8">
         <!-- Song Info -->
@@ -85,7 +88,7 @@ import {
   usersCollection,
   auth
 } from '@/includes/firebase'
-import { mapState, mapActions } from 'vuex'
+import { mapState, mapActions, mapGetters } from 'vuex'
 
 export default {
   name: 'SongView',
@@ -122,7 +125,12 @@ export default {
         ? [...this.comments].reverse()
         : this.comments
     },
-    ...mapState(['userLoggedIn'])
+    ...mapState(['userLoggedIn']),
+    ...mapState('player', ['currentSong']),
+    ...mapGetters('player', ['playing']),
+    isCurrent () {
+      return this.currentSong === this.song
+    }
   },
   methods: {
     async submit (values, { resetForm }) {
@@ -195,7 +203,10 @@ export default {
       this.cAuthors[uid] = author
       return author
     },
-    ...mapActions('player', ['newSong'])
+    ...mapActions('player', ['newSong', 'toggleAudio']),
+    bigPlayButton () {
+      this.isCurrent ? this.toggleAudio() : this.newSong(this.song)
+    }
   },
   watch: {
     sort (newVal) {

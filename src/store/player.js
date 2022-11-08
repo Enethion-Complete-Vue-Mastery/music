@@ -69,6 +69,19 @@ export default {
           dispatch('progress')
         })
       }
+    },
+    updateSeek ({ dispatch, state }, event) {
+      if (!state.sound.playing) {
+        return
+      }
+
+      const { x, width } = event.currentTarget.getBoundingClientRect()
+      const clickX = event.clientX - x
+      const percentage = clickX / width
+      const seconds = state.sound.duration() * percentage
+
+      state.sound.seek(seconds)
+      state.sound.once('seek', () => { dispatch('progress') })
     }
   }
 }
